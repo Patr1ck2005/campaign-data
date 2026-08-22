@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "campaign-data"
-version = "0.1.0"
+version = "0.2.0"
 description = "Schema-neutral audit, deduplication, merge, and split tools for tabular simulation campaigns"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -16,6 +16,9 @@ campaign-data = "campaign_data.__main__:main"
 campaign-data-runtime = "campaign_data.runtime:main"
 
 [project.optional-dependencies]
+pandas = [
+    "pandas",
+]
 dev = [
     "pytest>=7",
     "pytest-cov>=4",
