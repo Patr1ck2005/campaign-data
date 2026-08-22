@@ -62,6 +62,34 @@ def fv(s, decimals=None):
         return s
 
 
+def sniff_delimiter(path) -> str:
+    """Return '\\t' or ',' for a table file based on its first content line.
+
+    Content-based sniffing: COMSOL exports are tab-separated regardless of
+    the ``.csv`` extension, while batch-export metadata CSVs are comma-
+    separated.  The first non-empty line decides — tabs win ties because a
+    tab-separated header often contains commas inside column names (e.g.
+    ``abs(cx)^2+... (kg^2*m^2/(s^6*A^2))``), while comma-separated files
+    essentially never contain tab characters.
+
+    Falls back to ',' only when no readable line contains either delimiter.
+    """
+    try:
+        with open(path, "r", encoding="utf-8-sig", errors="ignore") as f:
+            for _line in f:
+                line = _line.rstrip("\r\n")
+                if not line.strip():
+                    continue
+                tabs = line.count("\t")
+                commas = line.count(",")
+                if tabs == 0 and commas == 0:
+                    continue  # single-column junk line; try the next one
+                return "\t" if tabs >= commas else ","
+    except OSError:
+        pass
+    return ","
+
+
 def read_tsv(path):
     """Read a tab-separated file. Returns list of row-lists including header."""
     # Try UTF-8 first, then fall back to the system default.
@@ -121,20 +149,35 @@ def write_tsv(path, rows, clean_floats=False, header_len=None):
 
 
 def read_and_parse(path):
-    """Read a TSV or CSV file and return (header, data_rows). Strips header cells."""
+    """Read a TSV or CSV file and return (header, data_rows). Strips header cells.
+
+    The delimiter is sniffed from the file content (see :func:`sniff_delimiter`),
+    not assumed from the extension — COMSOL exports are frequently
+    tab-separated ``.csv`` files.
+    """
     path = Path(path)
-    if path.suffix.lower() == ".csv":
-        rows = read_csv(path)
-    else:
-        rows = read_tsv(path)
+    rows = _read_delimited(path, sniff_delimiter(path))
     header = [c.strip() for c in rows[0]]
     return header, rows[1:]
+
+
+def read_table_rows(path):
+    """Full read with content-sniffed delimiter. Returns row-lists incl. header."""
+    path = Path(path)
+    return _read_delimited(path, sniff_delimiter(path))
+
+
+def _read_delimited(path, delimiter):
+    """Dispatch to the comma (batch-export) or tab reader by delimiter."""
+    if delimiter == ",":
+        return read_csv(path)
+    return read_tsv(path)
 
 
 def _stream_head_rows(path, n):
     """Read only the first n data rows + header. Returns (header, data_rows)."""
     path = Path(path)
-    if path.suffix.lower() == '.csv':
+    if sniff_delimiter(path) == ',':
         with open(path, 'r', newline='', encoding='utf-8-sig') as f:
             reader = csv.reader(f, delimiter=',')
             rows = []

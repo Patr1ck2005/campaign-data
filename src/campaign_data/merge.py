@@ -4,7 +4,7 @@ from pathlib import Path
 from dataclasses import dataclass
 
 from campaign_data.io_utils import (
-    read_tsv, read_csv, write_tsv, collect_paths, HEADER_LEN,
+    read_tsv, read_csv, read_table_rows, write_tsv, collect_paths, HEADER_LEN,
 )
 from campaign_data.grid_analysis import (
     analyse_files, find_overlap_region, get_canonical_varying_order,
@@ -55,7 +55,7 @@ def _align_headers(paths, header_len):
             return None
 
         # Header sets match but order differs — full read + reorder + write
-        p_rows = read_csv(p) if p.suffix.lower() == ".csv" else read_tsv(p)
+        p_rows = read_table_rows(p)
         reorder = [h.index(name) for name in ref_header[:header_len]]
         reorder.extend(range(header_len, len(h)))
         aligned_rows = [[row[i] for i in reorder] for row in p_rows]
@@ -188,11 +188,7 @@ def analyse_directory(sources, *, header_len=None, path_dims=None,
         if return_data:
             for fi in cached_map:
                 if fi not in all_data:
-                    p = paths[fi]
-                    if p.suffix.lower() == ".csv":
-                        all_data[fi] = read_csv(p)[1:]
-                    else:
-                        all_data[fi] = read_tsv(p)[1:]
+                    all_data[fi] = read_table_rows(paths[fi])[1:]
 
         reports = [cached_map[fi] for fi in sorted(cached_map)]
         if cache_hits:
@@ -354,11 +350,7 @@ def smart_merge(sources, out_path=None, clean_floats=True, header_len=None,
                 if not dry_run:
                     for fi in cached_map:
                         if fi not in all_data:
-                            p = paths[fi]
-                            if p.suffix.lower() == ".csv":
-                                all_data[fi] = read_csv(p)[1:]
-                            else:
-                                all_data[fi] = read_tsv(p)[1:]
+                            all_data[fi] = read_table_rows(paths[fi])[1:]
 
                 reports = [cached_map[fi] for fi in sorted(cached_map)]
                 if cache_hits:
@@ -532,11 +524,7 @@ def simple_merge(paths, out_path, clean_floats=True, path_dims=None,
 
         all_rows = [reports[0].header]
         for rep in reports:
-            if rep.path.suffix.lower() == ".csv":
-                rows = read_csv(rep.path)
-            else:
-                rows = read_tsv(rep.path)
-            all_rows.extend(rows[1:])
+            all_rows.extend(read_table_rows(rep.path)[1:])
 
         out_path = Path(out_path)
         write_tsv(out_path, all_rows, clean_floats=clean_floats,

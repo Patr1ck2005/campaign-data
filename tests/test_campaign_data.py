@@ -101,6 +101,59 @@ def test_read_table_max_rows(tmp_path):
     assert len(df) == 3
 
 
+def test_read_table_tab_separated_csv_extension(tmp_path):
+    """COMSOL exports are frequently tab-separated files named .csv.
+
+    Regression: extension-based delimiter dispatch collapsed such files into
+    a single str column. Delimiter must be sniffed from content.
+    """
+    import pandas as pd
+
+    from campaign_data import read_table
+
+    path = tmp_path / "comsol_export.csv"
+    path.write_text(
+        "m1\tm2\tfreq (THz)\tfield_cx\n"
+        "0\t0\t350.5\t1.9E15-1.3E15i\n"
+        "0.1\t0\t351.1\t2.0E15\n",
+        encoding="utf-8",
+    )
+
+    df = read_table(path)
+    assert list(df.columns) == ["m1", "m2", "freq (THz)", "field_cx"]
+    assert len(df) == 2
+    assert pd.api.types.is_numeric_dtype(df["m1"])
+    assert pd.api.types.is_numeric_dtype(df["freq (THz)"])
+    assert df["field_cx"].tolist()[0] == "1.9E15-1.3E15i"  # complex stays str
+
+
+def test_read_table_comma_csv_with_commas_in_tsv_header(tmp_path):
+    """A tab-separated file whose header contains commas must stay tab-delimited."""
+    from campaign_data import read_table
+
+    path = tmp_path / "tricky.csv"
+    path.write_text(
+        "abs(cx)^2 (kg^2*m^2/(s^6*A^2))\tf_thz\n1.5\t100\n2.5\t101\n",
+        encoding="utf-8",
+    )
+
+    df = read_table(path)
+    assert list(df.columns) == ["abs(cx)^2 (kg^2*m^2/(s^6*A^2))", "f_thz"]
+    assert df["f_thz"].tolist() == [100.0, 101.0]
+
+
+def test_sniff_delimiter(tmp_path):
+    from campaign_data import sniff_delimiter
+
+    tsv = tmp_path / "a.csv"  # tab content, csv name
+    tsv.write_text("m1\tm2\n0\t1\n", encoding="utf-8")
+    assert sniff_delimiter(tsv) == "\t"
+
+    csv = tmp_path / "b.txt"  # comma content, txt name
+    csv.write_text("% Model,test.mph\nm1,m2\n0,1\n", encoding="utf-8")
+    assert sniff_delimiter(csv) == ","
+
+
 def test_peek_table_summary(tmp_path):
     from campaign_data import peek_table
 
