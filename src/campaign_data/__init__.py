@@ -4,7 +4,7 @@ from ._version import __version__
 from .audit import AuditReport, audit_directory, format_audit_report
 from .directory_index import DirectoryIndex, build_directory_index, dump_directory_index
 from .grid_analysis import GridReport, analyse_file, analyse_files
-from .io_utils import collect_paths, detect_header_len, read_and_parse, read_csv, read_tsv, write_tsv
+from .io_utils import collect_paths, detect_header_len, peek_table, read_and_parse, read_csv, read_table, read_table_rows, read_tsv, sniff_delimiter, write_tsv
 from .merge import AnalysisResult, agent_quick_merge, analyse_directory, simple_merge, smart_merge
 from .runtime import RuntimeInfo, runtime_info
 from .splitter import SplitPlan, SplitResult, analyze_split_options, execute_split, plan_split, smart_merge_and_split
@@ -30,13 +30,17 @@ __all__ = [
     "dump_directory_index",
     "execute_split",
     "format_audit_report",
+    "peek_table",
     "plan_split",
     "read_and_parse",
     "read_csv",
+    "read_table",
+    "read_table_rows",
     "read_tsv",
     "runtime_info",
     "simple_merge",
     "smart_merge",
     "smart_merge_and_split",
+    "sniff_delimiter",
     "write_tsv",
 ]

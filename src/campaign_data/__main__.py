@@ -1,16 +1,15 @@
-"""CLI entry point for csv_processor.
+"""CLI entry point for campaign-data.
 
 Usage:
+    python -m campaign_data peek <file> [--max-values N]
     python -m campaign_data audit <dir> [--path-dims m1,m2] [--dup-freq-tolerance 1e-4]
     python -m campaign_data merge <dir> [--split-by "t_tot (nm)"] [--out PATH]
                                           [--path-dims m1,m2] [--dup-freq-tolerance 1e-4]
 
-The audit subcommand prints a markdown report of file fingerprints, campaigns,
-coverage matrix, overlaps, and conflicts.  Use it as the first step when
-encountering a messy data directory.
-
-The merge subcommand runs smart_merge (with optional split_by) and writes
-the output.  Pass the same flags as audit for path_dims/dup_freq_tolerance.
+Subcommand ladder (cheap -> expensive):
+    peek   one-file structure summary (columns, dtypes, sample values)
+    audit  directory-level fingerprints, campaigns, coverage, conflicts
+    merge  smart merge/split with dedup and output writing
 """
 from __future__ import annotations
 
@@ -29,6 +28,17 @@ def _parse_path_dims(s: str | None) -> list:
         if len(names) >= 2:
             groups.append(tuple(names))
     return groups
+
+
+def _cmd_peek(args: argparse.Namespace) -> int:
+    from campaign_data.io_utils import peek_table
+
+    try:
+        print(peek_table(args.source, max_values=args.max_values))
+    except (OSError, IndexError, KeyError) as exc:
+        print(f"[peek] failed: {exc}", file=sys.stderr)
+        return 1
+    return 0
 
 
 def _cmd_audit(args: argparse.Namespace) -> int:
@@ -71,6 +81,16 @@ def main(argv: list[str] | None = None) -> int:
         description="Analyse and merge messy campaign-data directories.",
     )
     sub = parser.add_subparsers(dest="command", required=True)
+
+    # ---- peek ----
+    p_peek = sub.add_parser(
+        "peek",
+        help="Print a one-file structure summary (columns, dtypes, sample values).",
+    )
+    p_peek.add_argument("source", help="Table file (.txt TSV or .csv batch export).")
+    p_peek.add_argument("--max-values", type=int, default=8,
+                        help="Sample values shown per column (default 8).")
+    p_peek.set_defaults(func=_cmd_peek)
 
     # ---- audit ----
     p_audit = sub.add_parser(

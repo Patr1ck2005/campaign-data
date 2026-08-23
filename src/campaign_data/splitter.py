@@ -308,13 +308,10 @@ def _iter_from_dict(all_data):
 
 def _iter_from_files(reports):
     """Yield (file_index, row) by streaming from report.path."""
-    from campaign_data.io_utils import read_csv, read_tsv
+    from campaign_data.io_utils import read_table_rows
     from campaign_data.grid_analysis import remove_intra_point_duplicates
     for fi, rep in enumerate(reports):
-        if rep.path.suffix.lower() == '.csv':
-            rows = read_csv(rep.path)
-        else:
-            rows = read_tsv(rep.path)
+        rows = read_table_rows(rep.path)
         data = rows[1:]  # skip header
         if rep.duplicate_rows:
             data = remove_intra_point_duplicates(data, rep.varying, rep.header)
