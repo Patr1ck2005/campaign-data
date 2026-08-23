@@ -166,6 +166,36 @@ def test_peek_table_summary(tmp_path):
     assert "distinct" in text
 
 
+def test_peek_table_grid_summary(tmp_path):
+    """Leading low-cardinality numeric columns get a grid summary line."""
+    from campaign_data import peek_table
+
+    path = tmp_path / "scan.txt"
+    path.write_text(
+        "m1\tm2\tf_thz\n"
+        + "".join(f"{i}\t{j}\t{100 + 10 * i + j}\n" for i in range(3) for j in range(4)),
+        encoding="utf-8",
+    )
+
+    text = peek_table(path)
+    assert "grid: m1(3), m2(4) -> product 12, square" in text
+
+
+def test_peek_table_grid_incomplete(tmp_path):
+    """A gappy grid reports the rows/product ratio instead of 'square'."""
+    from campaign_data import peek_table
+
+    path = tmp_path / "gap.txt"
+    path.write_text(
+        "m1\tm2\tf_thz\n0\t0\t1\n0\t1\t2\n1\t0\t3\n",  # 3 of 4 points
+        encoding="utf-8",
+    )
+
+    text = peek_table(path)
+    assert "grid: m1(2), m2(2) -> product 4" in text
+    assert "square" not in text
+
+
 def test_peek_table_cli(tmp_path, capsys):
     import sys as _sys
 

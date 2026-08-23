@@ -308,7 +308,10 @@ def peek_table(path, max_values=8):
     """Return a human/agent-readable structure summary of a table file.
 
     Stdlib-only (no pandas): reports shape, per-column dtype class,
-    distinct-value counts, and up to *max_values* sample values per column.
+    distinct-value counts, and up to *max_values* sample values per column,
+    plus a grid summary for the low-cardinality numeric prefix (the
+    parameter columns of a COMSOL scan): per-column uniques and whether
+    their product matches the sampled row count (square grid check).
     Useful for the "what's in this file?" question without spinning up a
     full audit.
     """
@@ -322,6 +325,36 @@ def peek_table(path, max_values=8):
             values_by_col[ci].append(row[ci].strip())
 
     lines = [f"file: {Path(path).name}", f"rows shown: {len(data_rows)}"]
+
+    # Grid summary: leading numeric columns are the scan axes. Constant
+    # columns (1 unique value) are fixed parameters, not axes — skipped.
+    # The running-product guard stops at the first result column (its
+    # uniques are data values, not grid axes).
+    grid_cols = []
+    product = 1
+    for ci in range(n_cols):
+        uniq = list(dict.fromkeys(values_by_col[ci]))
+        if not uniq:
+            break
+        try:
+            float(uniq[0])
+        except ValueError:
+            break
+        if len(uniq) == 1:
+            continue  # constant parameter column, not a scan axis
+        if product * len(uniq) > max(len(data_rows), 1) * 2:
+            break  # result column reached (e.g. freq with thousands of values)
+        grid_cols.append((header[ci], uniq))
+        product *= len(uniq)
+    if len(grid_cols) >= 2:
+        names = ", ".join(f"{name}({len(uniq)})" for name, uniq in grid_cols)
+        ratio = len(data_rows) / product if product else 0.0
+        square = "square" if abs(ratio - 1.0) < 0.01 else f"{ratio:.2f}x rows/grid-point"
+        lines.append(f"grid: {names} -> product {product}, {square}")
+    elif len(grid_cols) == 1:
+        name, uniq = grid_cols[0]
+        lines.append(f"grid: {name} 1D, {len(uniq)} points")
+
     for ci, name in enumerate(header):
         vals = values_by_col[ci]
         uniq = list(dict.fromkeys(vals))
