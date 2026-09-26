@@ -1,5 +1,7 @@
 # campaign-data
 
+For tasks in the personal research system, read the [canonical MyPhysics entry](D:/Obsidian/MyPhysics/System/README.md) and follow its pointers to the owning scientific project. This does not change the domain-neutral package contract. [Local Agent rules](AGENTS.md); [shared-library ownership](D:/Dev/Projects/Work/research-agent-workbench/docs/shared-libraries/shared-library-catalog.md).
+
 `campaign-data` audits, merges, deduplicates, and splits large collections of
 CSV and tab-separated TXT files. It does not assume a particular simulator,
 project, or language for column names.
