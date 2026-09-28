@@ -1,5 +1,9 @@
 # campaign-data
 
+<p align="center"><img src="docs/assets/portfolio/scientific-tools-v1.png" width="760" alt="Four glass modules linked by light: the shared scientific-tooling collection" /></p>
+
+*Concept illustration for the shared scientific-tooling collection; not a computed result. [Artwork provenance](docs/assets/portfolio/manifest.json).*
+
 For tasks in the personal research system, read the [canonical MyPhysics entry](D:/Obsidian/MyPhysics/System/README.md) and follow its pointers to the owning scientific project. This does not change the domain-neutral package contract. [Local Agent rules](AGENTS.md); [shared-library ownership](D:/Dev/Projects/Work/research-agent-workbench/docs/shared-libraries/shared-library-catalog.md).
 
 `campaign-data` audits, merges, deduplicates, and splits large collections of
