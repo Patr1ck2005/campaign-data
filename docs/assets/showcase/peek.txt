@@ -1,0 +1,6 @@
+file: coarse-a.csv
+rows shown: 8
+grid: x(3), y(3) -> product 9, 0.89x rows/grid-point
+col  0 x: numeric, 3 distinct | 0, 1, 2
+col  1 y: numeric, 3 distinct | 0, 1, 2
+col  2 value: numeric, 8 distinct | 10, 10.2, 10.4, 11, 11.4, 12, 12.2, 12.4

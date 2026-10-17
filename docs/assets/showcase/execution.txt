@@ -1,0 +1,68 @@
+Found 3 files to analyse.
+Found 2 files to merge.
+======================================================================
+1. Overview
+======================================================================
+  Files:        2 (2 CSV, 0 TXT)
+  Total size:   0.0 MB
+  Total rows:   18
+  Columns:      3 (2 param + output)
+
+======================================================================
+2. Per-file dimensions
+======================================================================
+
+  [2 files]  varying: x: [0.0, 1.0, 2.0] x y: [0.0, 1.0, 2.0]
+    expected grid: 9 pts
+    constant across group: 
+    coarse-a.csv:    8/9  [89%]  eigens/pt=[1]
+    coarse-b.csv:    9/9  [100%]  eigens/pt=[1, 2]  DUPS=1
+
+======================================================================
+3. Merge assessment
+======================================================================
+
+  All files share the same grid structure → compatible.
+
+  Overlap: 5 grid points appear in >1 file
+  → 1 file-pairs have overlap. Dedup will be applied.
+    coarse-a.csv  x  coarse-b.csv: 5 pts
+
+  Redundancy: no file fully covered by others.
+
+  --- Merged result ---
+  Total rows:    18
+  Total grid pts: 12 / 12 (100.0%)
+  Dimensions:    2
+    [grid axis]  x: [0.0, 1.0, 2.0, 3.0]
+    [grid axis]  y: [0.0, 1.0, 2.0]
+
+  Estimated merged file size: ~0 MB
+
+  Intra-point duplicates: 1 rows across 1 files
+    coarse-b.csv: 1 rows (10.0%)
+
+  Dedup: 5 grid-point decisions made.
+
+======================================================================
+4. Gaps — per-dimension coverage
+======================================================================
+
+  x: 4/4 values have data
+    all values covered
+
+  y: 3/3 values have data
+    all values covered
+
+  Merged output: .\merged-coarse.tsv  (12 data rows)  [1 intra-point duplicates removed]
+
+======================================================================
+Merged-grid regularity check
+======================================================================
+
+  Merged grid: x: [0.0, 1.0, 2.0, 3.0] x y: [0.0, 1.0, 2.0]
+  Expected points: 12
+  Actual points:   12
+  Completeness:    100.00%
+
+  >> The merged dataset IS a complete regular grid.

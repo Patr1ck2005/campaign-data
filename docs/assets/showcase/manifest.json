@@ -1,0 +1,72 @@
+{
+  "evidence_type": "computed synthetic file-audit demonstration",
+  "data_origin": "independent z=10+x+0.2y CSV definitions",
+  "seed": null,
+  "source": "../../../examples/synthetic_audit.py",
+  "source_sha256": "e690abefced171838545c3afbf544f0c27a1554d8dd2a0ef134e8a35059054ff",
+  "generation_command": "python examples/synthetic_audit.py --out docs/assets/showcase",
+  "versions": {
+    "campaign-data": "0.2.0"
+  },
+  "input_sha256_before": {
+    "coarse-a.csv": "b03a45f0822b87647a246dbaea70746305a55625f0da8adcaa3ad75fcf70c3a3",
+    "coarse-b.csv": "2bd2c31ebfa2e9923f7183946c0e6bd793b8cf7ff7aae0e56223393028d8d911",
+    "fine-c.csv": "960e947bb694dce66a60943658ecff3e94f65375a5525ca074ca84ebd6a7714b"
+  },
+  "input_sha256_after": {
+    "coarse-a.csv": "b03a45f0822b87647a246dbaea70746305a55625f0da8adcaa3ad75fcf70c3a3",
+    "coarse-b.csv": "2bd2c31ebfa2e9923f7183946c0e6bd793b8cf7ff7aae0e56223393028d8d911",
+    "fine-c.csv": "960e947bb694dce66a60943658ecff3e94f65375a5525ca074ca84ebd6a7714b"
+  },
+  "checks": {
+    "inputs_unchanged": true,
+    "file_count": 3,
+    "rows": 24,
+    "overlap_pairs": 3,
+    "mesh_conflicts": 2,
+    "merged_unique_points": 12,
+    "all_assertions_passed": true
+  },
+  "images": [
+    {
+      "stem": "hero",
+      "title": "Audit before merge",
+      "caption": "Counts come directly from AuditReport. A mesh conflict is not proof of a contradictory measured value.",
+      "sha256": "f1670df4a2d5f7d8665512779fa4bf008be5e13b74d98887da73935c8fa2dc1d",
+      "pixels": [
+        1000,
+        430
+      ]
+    },
+    {
+      "stem": "coverage",
+      "title": "Coverage and conflicts",
+      "caption": "This is per-anchor-value coverage from the library, not a voxel completeness map. Red denotes different mesh fingerprints sharing an anchor value.",
+      "sha256": "f2c854a501450f84363226221285a93949b5c31de81083a6c521a324f36daf8a",
+      "pixels": [
+        1000,
+        430
+      ]
+    },
+    {
+      "stem": "completeness",
+      "title": "Missing points and duplicate rows",
+      "caption": "The deliberately missing (1,1) site leaves coarse-a at 8/9. The repeated coarse-b row is a separate issue from grid completeness.",
+      "sha256": "5fab6c33bec43686428724fcf8bca641a241c986e8706dd3d96de3643f046368",
+      "pixels": [
+        1000,
+        430
+      ]
+    },
+    {
+      "stem": "overlap",
+      "title": "Pairwise overlap",
+      "caption": "Each off-diagonal count is taken from an OverlapPair in the audit result. Duplicate resolution is demonstrated only on compatible coarse files.",
+      "sha256": "ca937789c57b088e044b63e00929a73ff19efa71a092a47a24eb13107f09ced0",
+      "pixels": [
+        1000,
+        430
+      ]
+    }
+  ]
+}
